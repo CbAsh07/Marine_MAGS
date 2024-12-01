@@ -1,0 +1,144 @@
+##Kraken2
+
+module load python3/anaconda/2023.9
+
+conda create -n kraken2-env
+
+source activate kraken2-env
+
+conda install -c bioconda kraken2
+
+kraken2-build --standard --db kraken2_db
+
+kraken2 --version
+Kraken version 2.1.3
+Copyright 2013-2023, Derrick Wood (dwood@cs.jhu.edu)
+
+#Download custom reference database:
+
+#!/bin/sh
+#SBATCH --job-name=krak426
+#SBATCH --output=krak426a_job_%j.out
+#SBATCH --error=krak426a_job_%j.err
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -p defq-48core 
+
+cd /work/ac267/426MAGs/426MAGS_tax
+
+kraken2-build --download-taxonomy --db "$426MAGSDB"
+
+#!/bin/sh
+#SBATCH --job-name=krak426b
+#SBATCH --output=krak426b_job_%j.out
+#SBATCH --error=krak426b_job_%j.err
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -p defq-48core 
+
+cd /work/ac267/426MAGs/426MAGS_tax
+
+kraken2-build --download-library archaea --db "$426MAGSDB"
+
+#!/bin/sh
+#SBATCH --job-name=krak426c
+#SBATCH --output=krak426c_job_%j.out
+#SBATCH --error=krak426c_job_%j.err
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -p defq-48core 
+
+cd /work/ac267/426MAGs/426MAGS_tax
+
+kraken2-build --download-library bacteria --db "$426MAGSDB"
+
+#!/bin/sh
+#SBATCH --job-name=krak426c
+#SBATCH --output=krak426c_job_%j.out
+#SBATCH --error=krak426c_job_%j.err
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -p defq-48core 
+
+cd /work/ac267/426MAGs/426MAGS_tax
+
+kraken2-build --build --db "$426MAGSDB"
+
+
+#!/bin/sh
+#SBATCH --job-name=kraknew
+#SBATCH --output=kraknew_job_%j.out
+#SBATCH --error=kraknew_job_%j.err
+#SBATCH -N 1
+#SBATCH -n 40
+#SBATCH -p defq-48core
+
+cd /work/ac267/426MAGs/426MAGS_tax
+
+output_dir="/work/ac267/426MAGs/426MAGS_tax/26MAGSDB"
+
+for i in /work/ac267/426MAGs/426MAGS_tax/*.fa
+do
+  name=$(basename "$i" | cut -d. -f1)
+  kraken2 \
+    --db /work/ac267/426MAGs/426MAGS_tax/26MAGSDB \
+    --use-mpa-style \
+    --classified-out "${output_dir}/classified_${name}.fa" \
+    --unclassified-out "${output_dir}/unclassified_${name}.fa" \
+    --output "${output_dir}/${name}_kraken.txt" \
+    --report "${output_dir}/${name}_kraken.report" \
+    "$i"
+done
+
+
+
+
+for file in *.txt; do ktImportText "$file" -o "${file%.txt}.html"; done
+
+
+#Download results locally, convert the m into krona.txt using metaphlan2krona.py
+nano krak.sh
+
+#!/bin/bash
+
+# Set the directory where the files are stored
+directory="/Users/cb_ash/Desktop/USC/uscwork/426MAGs/kraken2_results"
+
+# Loop through each file in the directory
+for file in "$directory"/*_kraken.report; do
+    # Check if the report file exists
+    if [ -e "$file" ]; then
+        # Extract the base filename without extension
+        base=$(basename "$file" _kraken.report)
+        # Run the Python script with the corresponding files
+        python "/Users/cb_ash/Desktop/USC/uscwork/426MAGs/kraken2_results/metaphlan2krona.py" -p "${base}_kraken.report" -k "${base}_krona.txt"
+    fi
+done
+
+chmod +x krak.sh
+./krak.sh
+
+#Transfer krona.txt to HPC
+
+module load python3/anaconda/2023.9
+conda create -n KronaTools
+source activate KronaTools
+for file in *_krona.txt; do ktImportText "$file" -o "${file%.txt}.html"; done
+
+
+
+###TRY next
+#!/bin/bash
+
+# Output file for combined results
+output_file="combined_results.txt"
+
+# Header for the output table
+echo -e "Sample\tTaxon\tTaxon ID\tRank\tCount\tPercentage" > "$output_file"
+
+# Loop through each Kraken2 report file
+for report_file in *_kraken.report; do
+    sample=$(basename "$report_file" _kraken.report)
+    # Extract relevant columns from the report file and append to the output table
+    awk -v sample="$sample" '{print sample "\t" $6 "\t" $5 "\t" $4 "\t" $1 "\t" $3}' "$report_file" >> "$output_file"
+done
