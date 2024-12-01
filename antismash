@@ -1,0 +1,23 @@
+#!/bin/sh
+#SBATCH --job-name=antismash_run1
+#SBATCH --output antismash_job_%j.out
+#SBATCH --error antismash_job_%j.err
+#SBATCH -N 1 
+#SBATCH -n 40
+#SBATCH -p defq-64core   
+#SBATCH --nodelist=node434
+
+cd /work/ac267/426MAGs/
+
+module load python3/anaconda/2021.11
+source activate /home/ac267/.conda/envs/antismash 
+
+for file in 426MAGs_fa_renamed/*.fa; do
+filename=$(basename "$file")
+output_dir="antismash_output/${filename%.*}_antismash_output"
+antismash --genefinding-tool prodigal-m --verbose --debug "$file" --output-dir "$output_dir" &
+done
+
+wait
+
+echo "AntiSMASH analysis completed."
