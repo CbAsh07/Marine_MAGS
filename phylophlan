@@ -1,3 +1,4 @@
+############# Configuration file ####################
 [db_aa]
 program_name = /home/labuser/anaconda3/envs/phylophlan/bin/diamond
 params = makedb
@@ -57,3 +58,16 @@ output = -n
 version = -v
 command_line = #program_name# #params# #threads# "#database#" "#output_path#" "#input#" "#output#"
 threads = -T
+
+########### Main Code ##################
+phylophlan \
+    -i /home/labuser/Documents/426MAGs/28_253_tree/input_bins \
+    -d phylophlan \
+    --diversity medium \
+    --accurate \
+    -f /home/labuser/Documents/426MAGs/28_253_tree/phylophlan_config.cfg \
+    -o /home/labuser/Documents/426MAGs/28_253_tree/output \
+    --output_folder /home/labuser/Documents/426MAGs/28_253_tree/ \
+    --nproc 4 \
+    -t a \
+    --verbose 2>&1 | tee /home/labuser/Documents/426MAGs/28_253_tree/phylophlan.log
