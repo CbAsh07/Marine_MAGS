@@ -1,0 +1,53 @@
+
+#bigscape
+
+#!/bin/sh
+#SBATCH --job-name=Bigripps
+#SBATCH --output bigripps_job_%j.out
+#SBATCH --error bigripps_job_%j.err
+#SBATCH -N 1 
+#SBATCH -n 40
+#SBATCH -p ge-lab 
+
+cd /work/ac267/426MAGs/ACB_MAGs_results/samplebigs/
+
+module load python3/anaconda/2023.9
+source activate /home/ac267/.conda/envs/bigscape_env
+
+bigscape --inputdir /work/ac267/426MAGs/ACB_MAGs_results/samplebigs --outputdir /work/ac267/426MAGs/ACB_MAGs_results/samplebigs/final_run --pfam_dir /work/ac267/426MAGs/ACB_MAGs_results/samplebigs/BiG-SCAPE-1.1.5 --mix --mibig --hybrids-off --verbose 
+
+echo "BigSCAPE analysis completed."
+
+###############################################################################################################################
+Alternatively
+###############################################################################################################################
+
+#!/bin/sh
+#SBATCH --job-name=Bigripps
+#SBATCH --output bigripps_job_%j.out
+#SBATCH --error bigripps_job_%j.err
+#SBATCH -N 1 
+#SBATCH -n 40
+#SBATCH -p defq-48core  
+
+cd /work/ac267/288RiPPs_MAGs/ripps_gbk
+
+module load python3/anaconda/2023.9
+source activate /home/ac267/.conda/envs/bigscape_env
+
+# Ensure the bigscape_env is activated
+echo "Current Conda environment: $(conda info --envs | grep '*' | awk '{print $1}')"
+
+# Define the path to the bigscape.py script
+BIGSCAPE_PATH="/home/ac267/.conda/envs/bigscape/bin/bigscape.py"
+
+# Check if the bigscape.py script exists
+if [ -f "$BIGSCAPE_PATH" ]; then
+    # Run BiG-SCAPE using the python interpreter and the bigscape.py script
+    python "$BIGSCAPE_PATH" --inputdir /work/ac267/288RiPPs_MAGs/ripps_gbk --outputdir /work/ac267/288RiPPs_MAGs/ripps_bigscape_results --pfam_dir /work/ac267/288RiPPs_MAGs/BiG-SCAPE-1.1.5/ --mix --mibig --hybrids-off --verbose 
+else
+    echo "Error: bigscape.py not found at $BIGSCAPE_PATH"
+    exit 1
+fi
+
+echo "BigSCAPE analysis completed."
