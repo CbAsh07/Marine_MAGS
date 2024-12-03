@@ -24,7 +24,7 @@
 <p align="center">
     <img src="https://github.com/CbAsh07/Marine_MAGS/blob/main/ACB.png" alt="Biosynthetic Gene cluster prediction and analysis" width="80%" height="80%">
     <br />
-    Biosynthetic Gene cluster prediction and analysis
+    Phylogenetic analysis of BGCs
 </p>
 
 
