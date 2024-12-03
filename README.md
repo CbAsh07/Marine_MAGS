@@ -22,7 +22,7 @@
 
 <h2>Biosynthetic Gene cluster prediction and analysis</h2>
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/e650ac71-9b02-417c-9473-1365e6a2df1a" alt="Biosynthetic Gene cluster prediction and analysis" width="80%" height="80%">
+    <img src="https://github.com/CbAsh07/Marine_MAGS/blob/main/ACB.png" alt="Biosynthetic Gene cluster prediction and analysis" width="80%" height="80%">
     <br />
     Biosynthetic Gene cluster prediction and analysis
 </p>
